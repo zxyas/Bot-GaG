@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 TOKEN = os.getenv("TOKEN")  # token bot
 GUILD_ID = 1221173165179277425  # ganti dengan ID server Discord kamu
 CHANNEL_ID = 1393911452334555146  # channel tempat embed dikirim
-API_BASE = "grow-a-garden-api-production-ec78.up.railway.app"  # URL API /stock
+API_BASE = "https://grow-a-garden-api-production-ec78.up.railway.app"  # URL API /stock
 CHECK_EVERY = 10  # detik interval polling API
 LOG_LEVEL = "INFO"  # DEBUG/INFO/WARNING/ERROR
 
