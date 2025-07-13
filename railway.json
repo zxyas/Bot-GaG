@@ -1,4 +1,8 @@
 {
-  "build": "pip install -r requirements.txt",
-  "start": "python bot.py"
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "start": {
+    "cmd": "python bot.py"
+  }
 }
