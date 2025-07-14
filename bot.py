@@ -64,6 +64,7 @@ EMOJI_MAP = {
     "Bamboo": "<:bambooGag:1394287325357539338>",
     "Apple": "<:appleGag:1394287325357539338>",
     "Daffodil": "<:daffodilGag:1394288916445659227>",
+    "Beanstalk": "<:beanstalk:1394287572448182283>",
     "Corn": ":corn:",
     
     "Basic Sprinkler": "<:basicSprink:1394287072528826479>",
@@ -71,6 +72,7 @@ EMOJI_MAP = {
     "Godly Sprinkler": "<:godlySprink:1394289629682995261>",
     "Master Sprinkler": "<:masterSprink:1394290802074718311>",
     "Magnifying Glass": "<:magnifyingGlass:1394290418434310266>",
+    "Medium Treat": ":bone:",
     
     "Common Egg": "<:commonEgg:1394288712313213039>",
     "Common Summer Egg": "<:commonSummerEgg:1394288818953256971>",
