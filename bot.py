@@ -72,7 +72,8 @@ EMOJI_MAP = {
     "Magnifying Glass": "<:magnifyingGlass:1394290418434310266>",
     
     "Common Egg": "<:commonEgg:1394288712313213039>",
-    "Common Summer Egg": "<:commonSummerEgg:1394288818953256971>"
+    "Common Summer Egg": "<:commonSummerEgg:1394288818953256971>",
+    "Paradise Egg": "<:paradiseEgg:1394291488019583048>"
 }
 
 EVENT_EMOJI = {
