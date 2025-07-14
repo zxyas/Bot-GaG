@@ -155,11 +155,11 @@ async def poll_stock():
             logging.info("Embed weather dikirim (event aktif)")
 
 # ─── SLASH COMMANDS ───────────────────────────────────────────────────────────
-@bot.command(name="sync_all")
-async def sync_all(ctx):
-    bot.tree.clear_commands(guild=discord.Object(id=ctx.guild.id))  # ⬅️ tanpa await
-    synced = await bot.tree.sync(guild=discord.Object(id=ctx.guild.id))
-    await ctx.send(f"✅ Synced {len(synced)} command(s) ke guild.")
+@bot.command()
+async def sync(ctx):
+    guild = discord.Object(id=GUILD_ID)  # GUILD_ID langsung
+    synced = await bot.tree.sync(guild=guild)
+    await ctx.send(f"✅ Synced {len(synced)} command(s): {[cmd.name for cmd in synced]}")
 
 # @bot.command(name="weather", help="Tampilkan event/cuaca aktif saat ini")
 # async def weather(ctx: commands.Context):
@@ -205,19 +205,14 @@ async def cmd_weather(interaction: discord.Interaction):
 # ─── READY ────────────────────────────────────────────────────────────────────
 @bot.event
 async def on_ready():
-    await bot.wait_until_ready()  # ⬅️ tambahkan ini agar sync tidak terlalu cepat
-
+    await bot.wait_until_ready()
     try:
-        synced = await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
+        guild = discord.Object(id=GUILD_ID)
+        synced = await bot.tree.sync(guild=guild)
         logging.info(f"✅ Synced {len(synced)} command(s): {[cmd.name for cmd in synced]}")
-        
     except Exception as e:
         logging.error(f"❌ Gagal sync slash command: {e}")
-    
     logging.info(f"Bot online sebagai {bot.user} (ID {bot.user.id})")
-    
-    if not poll_stock.is_running():
-        poll_stock.start()
 
 # ─── MAIN ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
