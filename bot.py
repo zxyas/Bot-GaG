@@ -86,25 +86,34 @@ def has_restocked(current: Dict[str, int] | None) -> bool:
     return False
 
 
-def build_embed(data: Dict[str, Any]) -> discord.Embed:
+def build_embed(data: Dict[str, Any], restock_times: Dict[str, Any] = None) -> discord.Embed:
     wib = timezone(timedelta(hours=7))
     now = datetime.now(wib).strftime('%H:%M')
     embed = discord.Embed(title=f"Grow a Garden Stock – {now}",
                           colour=0x4caf50)
     embed.set_footer(text="WRAITH • Dikirim Setiap Restock")
     for key in CATEGORIES_ORDER:
-        items: List[Dict[str, Any]] = data.get(key, [])
-        if not items:
-            continue
-        lines = []
-        for item in items:
-            name = item.get("name", "?")
-            qty = item.get("value", "?")
-            emoji = item.get("emoji") or EMOJI_MAP.get(name, "")
-            lines.append(f"{emoji} `{qty:>3}×` {name}")
-        embed.add_field(name=CATEGORY_ICON[key],
-                        value="\n".join(lines[:25]),
-                        inline=False)
+    items: List[Dict[str, Any]] = data.get(key, [])
+    if not items:
+        continue
+
+    lines = []
+    for item in items:
+        name = item.get("name", "?")
+        qty  = item.get("value", "?")
+        emoji = item.get("emoji") or EMOJI_MAP.get(name, "")
+        lines.append(f"{emoji} `{qty:>3}×` {name}")
+
+    # Ambil countdown jika tersedia
+    label = CATEGORY_ICON[key]
+    if restock_times:
+        restock_key = key.lower().replace("stock", "")
+        time_left = restock_times.get(restock_key, {}).get("countdown")
+        if time_left:
+            label += f" ({time_left})"
+
+    embed.add_field(name=label, value="\n".join(lines[:25]), inline=False)
+  
     return embed
 
 
@@ -122,35 +131,46 @@ async def on_ready():
 @tasks.loop(seconds=CHECK_EVERY)
 async def poll_stock():
     try:
-        data = await fetch_stock()
-    except Exception as e:
-        logging.error(f"Fetch error: {e}")
-        return
+    data = await fetch_stock()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{API_BASE.rstrip('/')}/api/stock/restock-time") as r:
+            restock_times = await r.json()
+except Exception as e:
+    logging.error(f"Fetch error: {e}")
+    return
 
-    if not has_restocked(data.get("restockTimers")):
-        return  # belum restock, diam
+if not has_restocked(data.get("restockTimers")):
+    return
 
-    channel = bot.get_channel(CHANNEL_ID)
-    if channel is None:
-        logging.warning("CHANNEL_ID tidak valid atau bot tak punya akses.")
-        return
+channel = bot.get_channel(CHANNEL_ID)
+if not channel:
+    logging.warning("CHANNEL_ID salah atau bot tak punya akses.")
+    return
 
-    embed = build_embed(data)
-    await channel.send(content="", embed=embed)
-    logging.info("Embed restock dikirim → Discord")
+await channel.send(content="@everyone", embed=build_embed(data, restock_times))
+logging.info("Embed restock dikirim → Discord")
+
 
 
 # Slash command manual
-@bot.tree.command(name="stock",
-                  description="Tampilkan stok Grow a Garden saat ini")
-async def stock_cmd(interaction: discord.Interaction):
+@bot.tree.command(name="stock", description="Lihat stock saat ini")
+async def stock_command(interaction: discord.Interaction):
     await interaction.response.defer()
+
     try:
         data = await fetch_stock()
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{API_BASE.rstrip('/')}/api/stock/restock-time") as r:
+                restock_times = await r.json()
+
+        embed = build_embed(data, restock_times)
+        await interaction.followup.send(embed=embed)
+
     except Exception as e:
-        await interaction.followup.send(f"Gagal fetch: {e}")
-        return
-    await interaction.followup.send(embed=build_embed(data))
+        logging.error(f"/stock error: {e}")
+        await interaction.followup.send("Gagal mengambil data stock.")
+
 
 
 # ────────────────────────────────────────────────────────────────────────────────
