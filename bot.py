@@ -45,10 +45,10 @@ CATEGORY_ICON = {
 CATEGORIES_ORDER = list(CATEGORY_ICON.keys())
 
 EMOJI_MAP = {
-    "Carrot": ":carrot:", "Strawberry": ":strawberry:", "Tomato": ":tomato:", "Blueberry": ":blueberry",
-    "Watering Can": ":wateringCan", "Trowel": ":trowel", "Recall Wrench": ":recallWrench",
-    "Cleaning Spray": ":cleaningSpray", "Favorite Tool": "favTool", "Harvest Tool": ":harvestTool",
-    "Common Egg": ":commonEgg",
+    "Carrot": ":carrotGag:", "Strawberry": ":strawberryGag:", "Tomato": ":tomatoGag:", "Blueberry": ":blueberryGag:",
+    "Watering Can": ":wateringCan:", "Trowel": ":trowel:", "Recall Wrench": ":recallWrench:",
+    "Cleaning Spray": ":cleaningSpray:", "Favorite Tool": ":favTool:", "Harvest Tool": ":harvestTool:",
+    "Common Egg": ":commonEgg:",
 }
 
 EVENT_EMOJI = {
