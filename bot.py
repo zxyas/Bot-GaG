@@ -98,8 +98,10 @@ def _events_changed(current: List[Dict[str, Any]]) -> bool:
 # ── Embed builders ──────────────────────────────────────────────────────────
 def _stock_embed(data: Dict[str, Any], restock: Dict[str, Any]) -> discord.Embed:
     wib_now = datetime.now(timezone(timedelta(hours=7))).strftime("%H:%M")
-    em = discord.Embed(title=f"Grow a Garden Stock – {wib_now}", colour=0x4caf50)
-    em.set_footer(text="WRAITH • otomatis setiap restock")
+    em = discord.Embed(title=f"Grow a Garden Stock - {wib_now}", colour=0xffc107)
+    em.set_footer(text="WRAITH • Stok Terbaru")
+    em.timestamp = datetime.now(timezone.utc)
+    
     for key in CATEGORIES_ORDER:
         items: List[Dict[str, Any]] = data.get(key, [])
         if not items:
@@ -108,7 +110,10 @@ def _stock_embed(data: Dict[str, Any], restock: Dict[str, Any]) -> discord.Embed
         cd = restock.get(key.lower().replace("stock", ""), {}).get("countdown")
         if cd:
             label += f" ({cd})"
-        lines = [f"{item.get('emoji') or EMOJI_MAP.get(item.get('name',''), '')} `{'{:>3}'.format(item.get('value','?'))}×` {item.get('name','?')}" for item in items]
+        lines = [
+            f"{item.get('emoji') or EMOJI_MAP.get(item.get('name', ''), '')} {item.get('name', '?')}: x{item.get('value', '?')}"
+            for item in items
+        ]
         em.add_field(name=label, value="\n".join(lines[:25]), inline=False)
     return em
 
@@ -120,6 +125,8 @@ def _weather_embed(active: List[Dict[str, Any]]) -> discord.Embed:
         return em
     lines = [f"{ev.get('emoji') or EVENT_EMOJI.get(ev['name'],'')} **{ev['displayName']}** – `{ev.get('timeRemaining','?')}`" for ev in active]
     em.description = "\n".join(lines)
+    em.set_footer(text="WRAITH • Cuaca Aktif")
+    em.timestamp = datetime.now(timezone.utc)
     return em
 
 # ── Polling loop ────────────────────────────────────────────────────────────
