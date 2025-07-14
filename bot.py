@@ -156,9 +156,10 @@ async def poll_stock():
 
 # ─── SLASH COMMANDS ───────────────────────────────────────────────────────────
 @bot.command()
-async def sync(ctx):
+async def sync_all(ctx):
+    await bot.tree.clear_commands(guild=discord.Object(id=ctx.guild.id))  # clear existing
     synced = await bot.tree.sync(guild=discord.Object(id=ctx.guild.id))
-    await ctx.send(f"Synced {len(synced)} command(s).")
+    await ctx.send(f"✅ Resynced {len(synced)} command(s)")
 
 # @bot.command(name="weather", help="Tampilkan event/cuaca aktif saat ini")
 # async def weather(ctx: commands.Context):
@@ -211,6 +212,9 @@ async def on_ready():
         logging.info(f"✅ Synced {len(synced)} command(s): {[cmd.name for cmd in synced]}")
     except Exception as e:
         logging.error(f"❌ Gagal sync slash command: {e}")
+    
+    for cmd in bot.tree.get_commands(guild=discord.Object(id=GUILD_ID)):
+        logging.info(f"Slash command tersedia: /{cmd.name}")
     
     logging.info(f"Bot online sebagai {bot.user} (ID {bot.user.id})")
     
