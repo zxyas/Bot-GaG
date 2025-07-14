@@ -18,7 +18,7 @@ TOKEN        = os.getenv("TOKEN")                                 # Token bot
 CHANNEL_ID   = 1393911452334555146                                # Channel tujuan
 API_BASE     = "https://grow-a-garden-api-production-ec78.up.railway.app"
 WEATHER_PATH = "/api/GetWeather"                                 # Endpoint event/weather
-CHECK_EVERY  = 1                                                 # Interval polling (detik)
+CHECK_EVERY  = 5                                                 # Interval polling (detik)
 LOG_LEVEL    = "INFO"
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL),
