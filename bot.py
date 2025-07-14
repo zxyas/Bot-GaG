@@ -210,11 +210,12 @@ async def on_ready():
     try:
         synced = await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
         logging.info(f"✅ Synced {len(synced)} command(s): {[cmd.name for cmd in synced]}")
+        
+        for cmd in bot.tree.get_commands(guild=discord.Object(id=GUILD_ID)):
+            logging.info(f"Slash command tersedia: /{cmd.name}")
+            
     except Exception as e:
         logging.error(f"❌ Gagal sync slash command: {e}")
-    
-    for cmd in bot.tree.get_commands(guild=discord.Object(id=GUILD_ID)):
-        logging.info(f"Slash command tersedia: /{cmd.name}")
     
     logging.info(f"Bot online sebagai {bot.user} (ID {bot.user.id})")
     
