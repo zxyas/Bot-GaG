@@ -78,16 +78,33 @@ EMOJI_MAP = {
     
     "Common Egg": "<:commonEgg:1394288712313213039>",
     "Common Summer Egg": "<:commonSummerEgg:1394288818953256971>",
+    "Rare Summer Egg": "<:rareSummerEgg:1394291755939008522>",
     "Paradise Egg": "<:paradiseEgg:1394291488019583048>"
 }
 
 EVENT_EMOJI = {
-    "rain": "🌧️", "thunderstorm": "⛈️", "bloodnight": "🩸", "meteorshower": "☄️",
-    "disco": "🕺", "jandelstorm": "🌪️", "night": "🌙", "volcano": "🌋",
-    "chocolaterain": "🍫", "blackhole": "🕳️", "frost": "❄️", "bloodmoonevent": "🔴",
-    "gale": "🌬️", "megaharvest": "🍌", "sungod": "𓂀", "nightevent": "🌑",
-    "tropicalrain": "🌴", "auroraborealis": "🌌", "windy": "💨", "tornado": "🌪️",
-    "summerharvest": "⛱️", "heatwave": "♨️",
+    "rain": "🌧️", 
+    "thunderstorm": "⛈️", 
+    "bloodnight": "🩸", 
+    "meteorshower": "☄️",
+    "disco": "🕺", 
+    "jandelstorm": "🌪️", 
+    "night": "🌙", 
+    "volcano": "🌋",
+    "chocolaterain": "🍫", 
+    "blackhole": "🕳️", 
+    "frost": "❄️", 
+    "bloodmoonevent": "🔴",
+    "gale": "🌬️", 
+    "megaharvest": "🍌", 
+    "sungod": "𓂀", 
+    "nightevent": "🌑",
+    "tropicalrain": "🌴", 
+    "auroraborealis": "🌌", 
+    "windy": "💨", 
+    "tornado": "🌪️",
+    "summerharvest": "⛱️", 
+    "heatwave": "♨️",
 }
 
 # ── Helper HTTP ─────────────────────────────────────────────────────────────
