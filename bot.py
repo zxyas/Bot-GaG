@@ -119,7 +119,7 @@ def _stock_embed(data: Dict[str, Any], restock: Dict[str, Any]) -> discord.Embed
         if cd:
             label += f" ({cd})"
         lines = [
-            f"{item.get('emoji') or EMOJI_MAP.get(item.get('name', ''), '')} {item.get('name', '?')}: x{item.get('value', '?')}"
+            f"{item.get('emoji') or EMOJI_MAP.get(item.get('name', ''), '')} {item.get('name', '?')}: **x{item.get('value', '?')}**"
             for item in items
         ]
         em.add_field(name=label, value="\n".join(lines[:25]), inline=False)
