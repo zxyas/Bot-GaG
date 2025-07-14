@@ -155,11 +155,11 @@ async def poll_stock():
             logging.info("Embed weather dikirim (event aktif)")
 
 # ─── SLASH COMMANDS ───────────────────────────────────────────────────────────
-@bot.command()
+@bot.command(name="sync_all")
 async def sync_all(ctx):
-    await bot.tree.clear_commands(guild=discord.Object(id=ctx.guild.id))  # clear existing
+    bot.tree.clear_commands(guild=discord.Object(id=ctx.guild.id))  # ⬅️ tanpa await
     synced = await bot.tree.sync(guild=discord.Object(id=ctx.guild.id))
-    await ctx.send(f"✅ Resynced {len(synced)} command(s)")
+    await ctx.send(f"✅ Synced {len(synced)} command(s) ke guild.")
 
 # @bot.command(name="weather", help="Tampilkan event/cuaca aktif saat ini")
 # async def weather(ctx: commands.Context):
