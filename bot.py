@@ -117,12 +117,12 @@ def _stock_embed(data: Dict[str, Any], restock: Dict[str, Any]) -> discord.Embed
         label = CATEGORY_ICON[key]
         cd = restock.get(key.lower().replace("stock", ""), {}).get("countdown")
         if cd:
-            label += f" ({cd})\n"
+            label += f" ({cd})"
         lines = [
             f"{item.get('emoji') or EMOJI_MAP.get(item.get('name', ''), '')} {item.get('name', '?')}: **x{item.get('value', '?')}**"
             for item in items
         ]
-        em.add_field(name=label, value="\n".join(lines[:25]), inline=False)
+        em.add_field(name=label, value="\n".join(lines[:25])+"\n", inline=False)
     return em
 
 def _weather_embed(active: List[Dict[str, Any]]) -> discord.Embed:
