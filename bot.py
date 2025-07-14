@@ -18,7 +18,7 @@ TOKEN        = os.getenv("TOKEN")                                 # Token bot
 CHANNEL_ID   = 1393911452334555146                                # Channel tujuan
 API_BASE     = "https://grow-a-garden-api-production-ec78.up.railway.app"
 WEATHER_PATH = "/api/GetWeather"                                 # Endpoint event/weather
-CHECK_EVERY  = 10                                                 # Interval polling (detik)
+CHECK_EVERY  = 1                                                 # Interval polling (detik)
 LOG_LEVEL    = "INFO"
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL),
@@ -60,11 +60,13 @@ EMOJI_MAP = {
     "Orange Tulip": "<:orangeTulipGag:1394291333941694496>",
     "Bamboo": "<:bambooGag:1394287325357539338>",
     "Apple": "<:appleGag:1394287325357539338>",
+    "Daffodil": "<:daffodilGag:1394288916445659227>",
     
     "Basic Sprinkler": "<:basicSprink:1394287072528826479>",
     "Advanced Sprinkler": "<:advSprink:1394286854538526893>",
     "Godly Sprinkler": "<:godlySprink:1394289629682995261>",
     "Master Sprinkler": "<:masterSprink:1394290802074718311>",
+    "Magnifying Glass": "<:magnifyingGlass:1394290418434310266>",
     
     "Common Egg": "<:commonEgg:1394288712313213039>",
     "Common Summer Egg": "<:commonSummerEgg:1394288818953256971>"
