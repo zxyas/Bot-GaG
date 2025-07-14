@@ -93,26 +93,26 @@ def build_embed(data: Dict[str, Any], restock_times: Dict[str, Any] = None) -> d
                           colour=0x4caf50)
     embed.set_footer(text="WRAITH • Dikirim Setiap Restock")
     for key in CATEGORIES_ORDER:
-    items: List[Dict[str, Any]] = data.get(key, [])
-    if not items:
-        continue
-
-    lines = []
-    for item in items:
-        name = item.get("name", "?")
-        qty  = item.get("value", "?")
-        emoji = item.get("emoji") or EMOJI_MAP.get(name, "")
-        lines.append(f"{emoji} `{qty:>3}×` {name}")
-
-    # Ambil countdown jika tersedia
-    label = CATEGORY_ICON[key]
-    if restock_times:
-        restock_key = key.lower().replace("stock", "")
-        time_left = restock_times.get(restock_key, {}).get("countdown")
-        if time_left:
-            label += f" ({time_left})"
-
-    embed.add_field(name=label, value="\n".join(lines[:25]), inline=False)
+      items: List[Dict[str, Any]] = data.get(key, [])
+      if not items:
+          continue
+  
+      lines = []
+      for item in items:
+          name = item.get("name", "?")
+          qty  = item.get("value", "?")
+          emoji = item.get("emoji") or EMOJI_MAP.get(name, "")
+          lines.append(f"{emoji} `{qty:>3}×` {name}")
+  
+      # Ambil countdown jika tersedia
+      label = CATEGORY_ICON[key]
+      if restock_times:
+          restock_key = key.lower().replace("stock", "")
+          time_left = restock_times.get(restock_key, {}).get("countdown")
+          if time_left:
+              label += f" ({time_left})"
+  
+      embed.add_field(name=label, value="\n".join(lines[:25]), inline=False)
   
     return embed
 
