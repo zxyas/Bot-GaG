@@ -153,6 +153,12 @@ async def poll_stock():
             logging.info("Embed weather dikirim (event aktif)")
 
 # ─── SLASH COMMANDS ───────────────────────────────────────────────────────────
+@bot.command()
+async def sync(ctx):
+    synced = await bot.tree.sync(guild=discord.Object(id=ctx.guild.id))
+    await ctx.send(f"Synced {len(synced)} command(s).")
+
+
 @bot.tree.command(name="stock", description="Tampilkan stok Grow a Garden saat ini")
 async def cmd_stock(interaction: discord.Interaction):
     await interaction.response.defer()
