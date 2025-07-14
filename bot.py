@@ -34,7 +34,7 @@ _last_timers: Dict[str, int] | None = None   # cache restock timer
 _last_active_events: List[str] = []          # cache event aktif
 
 # ── Pemetaan ikon & emoji ───────────────────────────────────────────────────
-WATCHED_ITEMS = ["Sugar Apple"]
+WATCHED_ITEMS = ["Sugar Apple", "Master Sprinkler", "Beanstalk", "Ember Lily", "Bug Egg"]
 WATCHED_PING   = "@everyone"  # bisa ganti jadi user ID atau @everyone/@here
 
 CATEGORY_ICON = {
