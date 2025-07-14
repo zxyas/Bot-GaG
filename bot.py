@@ -161,6 +161,11 @@ async def sync(ctx):
     synced = await bot.tree.sync(guild=guild)
     await ctx.send(f"✅ Synced {len(synced)} command(s): {[cmd.name for cmd in synced]}")
 
+@bot.command()
+async def syncglobal(ctx):
+    synced = await bot.tree.sync()
+    await ctx.send(f"Synced {len(synced)} global command(s).")
+
 # @bot.command(name="weather", help="Tampilkan event/cuaca aktif saat ini")
 # async def weather(ctx: commands.Context):
 #     try:
