@@ -3,7 +3,7 @@
 """
 Fungsi utama:
 1. Melacak stok & event cuaca GAG, mengirim embed otomatis ke CHANNEL_ID.
-2. Menyediakan slash‑command global `/stock` & `/weather`.
+2. Menyediakan slash‑command global `/stock`
 3. Perintah `!sync` → paksa sync global.
 """
 
@@ -17,7 +17,6 @@ from datetime import datetime, timedelta, timezone
 TOKEN        = os.getenv("TOKEN")                                 # Token bot
 CHANNEL_ID   = 1393911452334555146                                # Channel tujuan
 API_BASE     = "https://grow-a-garden-api-production-ec78.up.railway.app"
-WEATHER_PATH = "/api/GetWeather"                                 # Endpoint event/weather
 CHECK_EVERY  = 5                                                 # Interval polling (detik)
 LOG_LEVEL    = "INFO"
 
@@ -116,7 +115,6 @@ async def _get_json(path: str) -> Dict[str, Any]:
             return await r.json()
 
 afetch_stock   = lambda: _get_json("/api/stock/GetStock")
-fetch_weather  = lambda: _get_json(WEATHER_PATH)
 _fetch_timers  = lambda: _get_json("/api/stock/restock-time")
 
 # ── Restock / Event detection ───────────────────────────────────────────────
@@ -164,25 +162,12 @@ def _stock_embed(data: Dict[str, Any], restock: Dict[str, Any]) -> discord.Embed
         em.add_field(name=label, value="\n".join(lines[:25])+"\n", inline=False)
     return em
 
-def _weather_embed(active: List[Dict[str, Any]]) -> discord.Embed:
-    wib_now = datetime.now(timezone(timedelta(hours=7))).strftime("%H:%M")
-    em = discord.Embed(title=f"🌤️ Event Aktif – {wib_now}", colour=0xffc107)
-    if not active:
-        em.description = "_Tidak ada event/cuaca aktif saat ini._"
-        return em
-    lines = [f"{ev.get('emoji') or EVENT_EMOJI.get(ev['name'],'')} **{ev['displayName']}** – `{ev.get('timeRemaining','?')}`" for ev in active]
-    em.description = "\n".join(lines)
-    em.set_footer(text="WRAITH • Cuaca")
-    em.timestamp = datetime.now(timezone.utc)
-    return em
-
 # ── Polling loop ────────────────────────────────────────────────────────────
 @tasks.loop(seconds=CHECK_EVERY)
 async def poll_api():
     try:
         stock   = await afetch_stock()
         timers  = await _fetch_timers()
-        weather = await fetch_weather()
     except Exception as e:
         logging.error(f"Fetch error: {e}")
         return
@@ -212,11 +197,6 @@ async def poll_api():
         logging.info("Embed stock dikirim (restock)")
         logging.info(f"Ping dikirim untuk: {found}")
 
-    active_now = _active_events(weather)
-    if _events_changed(active_now) and active_now:
-        await ch.send(embed=_weather_embed(active_now))
-        logging.info("Embed weather dikirim (event aktif)")
-
 # ── Slash commands (global) ─────────────────────────────────────────────────
 @bot.tree.command(name="stock", description="Menampilkan stok Grow a Garden")
 async def stock_slash(inter: discord.Interaction):
@@ -228,17 +208,6 @@ async def stock_slash(inter: discord.Interaction):
     except Exception as e:
         logging.error(e)
         await inter.followup.send("Gagal fetch stock.")
-
-@bot.tree.command(name="weather", description="Tampilkan event/cuaca aktif saat ini")
-async def weather_slash(inter: discord.Interaction):
-    await inter.response.defer()
-    try:
-        weather = await fetch_weather()
-        active  = _active_events(weather)
-        await inter.followup.send(embed=_weather_embed(active))
-    except Exception as e:
-        logging.error(e)
-        await inter.followup.send("Gagal fetch weather.")
 
 @bot.command()
 async def sync(ctx: commands.Context):
