@@ -155,7 +155,7 @@ async def poll_api():
         logging.info("Embed weather dikirim (event aktif)")
 
 # ── Slash commands (global) ─────────────────────────────────────────────────
-@bot.tree.command(name="stock", description="Tampilkan stok Grow a Garden")
+@bot.tree.command(name="stock", description="Menampilkan stok Grow a Garden")
 async def stock_slash(inter: discord.Interaction):
     await inter.response.defer()
     try:
