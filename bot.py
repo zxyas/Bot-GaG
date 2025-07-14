@@ -64,7 +64,7 @@ EMOJI_MAP = {
     "Bamboo": "<:bambooGag:1394287325357539338>",
     "Apple": "<:appleGag:1394287325357539338>",
     "Daffodil": "<:daffodilGag:1394288916445659227>",
-    "Corn": ":Corn:",
+    "Corn": ":corn:",
     
     "Basic Sprinkler": "<:basicSprink:1394287072528826479>",
     "Advanced Sprinkler": "<:advSprink:1394286854538526893>",
