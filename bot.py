@@ -1,233 +1,201 @@
-# bot.py – GAG Stock + Weather Tracker
-# ──────────────────────────────────────────────────────────────────────────────
-import logging, os, aiohttp, discord
+# bot.py – Grow a Garden Tracker (global slash commands)
+# ---------------------------------------------------------------------------
+"""
+Fungsi utama:
+1. Melacak stok & event cuaca GAG, mengirim embed otomatis ke CHANNEL_ID.
+2. Menyediakan slash‑command global `/stock` & `/weather`.
+3. Perintah `!sync` → paksa sync global.
+"""
+
+# ── Imports ────────────────────────────────────────────────────────────────
+import os, logging, aiohttp, discord
 from discord.ext import commands, tasks
 from typing import Dict, Any, List
 from datetime import datetime, timedelta, timezone
 
-# ─── KONFIG ───────────────────────────────────────────────────────────────────
-TOKEN       = os.getenv("TOKEN")                               # token bot
-GUILD_ID    = 1221173165179277425                              # ID server
-CHANNEL_ID  = 1393911452334555146                              # ID channel tujuan
-API_BASE    = "https://grow-a-garden-api-production-ec78.up.railway.app"
-CHECK_EVERY = 10                                               # detik polling
-LOG_LEVEL   = "INFO"
-WEATHER_PATH = "/api/GetWeather"                            # <- ubah kalau beda
+# ── Konfigurasi ─────────────────────────────────────────────────────────────
+TOKEN        = os.getenv("TOKEN")                                 # Token bot
+CHANNEL_ID   = 1393911452334555146                                # Channel tujuan
+API_BASE     = "https://grow-a-garden-api-production-ec78.up.railway.app"
+WEATHER_PATH = "/api/GetWeather"                                 # Endpoint event/weather
+CHECK_EVERY  = 10                                                 # Interval polling (detik)
+LOG_LEVEL    = "INFO"
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format="[%(asctime)s] %(levelname)s: %(message)s")
 
-INTENTS = discord.Intents.default()
-INTENTS.message_content = True
-bot = commands.Bot(command_prefix="!", intents=INTENTS)
+# ── Discord setup ───────────────────────────────────────────────────────────
+intents = discord.Intents.default()
+intents.message_content = True  # diperlukan utk command prefix
+bot = commands.Bot(command_prefix="!", intents=intents)
 
+# ── Cache ───────────────────────────────────────────────────────────────────
+_last_timers: Dict[str, int] | None = None   # cache restock timer
+_last_active_events: List[str] = []          # cache event aktif
 
-# ─── CACHE ────────────────────────────────────────────────────────────────────
-_last_timers: Dict[str, int] | None = None   # untuk restock
-_last_active_events: List[str]      = []     # untuk weather
-
-# ─── TABEL KATEGORI & EMOJI ───────────────────────────────────────────────────
+# ── Pemetaan ikon & emoji ───────────────────────────────────────────────────
 CATEGORY_ICON = {
-    "seedsStock":   "🌱 Seeds",
-    "gearStock":    "🛠️ Gear",
-    "eggStock":     "🥚 Eggs",
-    "honeyStock":   "🍯 Honey",
-    "nightStock":   "🌙 Night",
-    "easterStock":  "🐇 Easter",
+    "seedsStock":  "🌱 Seeds",
+    "gearStock":   "🛠️ Gear",
+    "eggStock":    "🥚 Eggs",
+    "honeyStock":  "🍯 Honey",
+    "nightStock":  "🌙 Night",
+    "easterStock": "🐇 Easter",
 }
 CATEGORIES_ORDER = list(CATEGORY_ICON.keys())
 
-EMOJI_MAP = {        # item emoji fallback
+EMOJI_MAP = {
     "Carrot": "🥕", "Strawberry": "🍓", "Tomato": "🍅", "Blueberry": "🫐",
     "Watering Can": "🚿", "Trowel": "🛠️", "Recall Wrench": "🔧",
     "Cleaning Spray": "🧴", "Favorite Tool": "❤️", "Harvest Tool": "🚜",
     "Shovel": "⛏️", "Common Egg": "🥚",
 }
 
-EVENT_EMOJI = {      # emoji cuaca / event
-    "rain": "🌧️", "thunderstorm": "⛈️", "bloodnight": "🩸",
-    "meteorshower": "☄️", "disco": "🕺", "jandelstorm": "🌪️",
-    "night": "🌙", "volcano": "🌋", "chocolaterain": "🍫",
-    "blackhole": "🕳️", "frost": "❄️", "bloodmoonevent": "🔴",
-    "gale": "🌬️", "megaharvest": "🍌", "sungod": "𓂀",
-    "nightevent": "🌑", "tropicalrain": "🌴", "auroraborealis": "🌌",
-    "windy": "💨", "tornado": "🌪️", "summerharvest": "⛱️", "heatwave": "♨️"
+EVENT_EMOJI = {
+    "rain": "🌧️", "thunderstorm": "⛈️", "bloodnight": "🩸", "meteorshower": "☄️",
+    "disco": "🕺", "jandelstorm": "🌪️", "night": "🌙", "volcano": "🌋",
+    "chocolaterain": "🍫", "blackhole": "🕳️", "frost": "❄️", "bloodmoonevent": "🔴",
+    "gale": "🌬️", "megaharvest": "🍌", "sungod": "𓂀", "nightevent": "🌑",
+    "tropicalrain": "🌴", "auroraborealis": "🌌", "windy": "💨", "tornado": "🌪️",
+    "summerharvest": "⛱️", "heatwave": "♨️",
 }
 
-# ─── UTIL HTTP ────────────────────────────────────────────────────────────────
-async def get_json(path: str) -> Dict[str, Any]:
+# ── Helper HTTP ─────────────────────────────────────────────────────────────
+async def _get_json(path: str) -> Dict[str, Any]:
     url = f"{API_BASE.rstrip('/')}{path}"
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, timeout=15) as resp:
-            resp.raise_for_status()
-            return await resp.json()
+        async with session.get(url, timeout=15) as r:
+            r.raise_for_status()
+            return await r.json()
 
-async def fetch_stock()   -> Dict[str, Any]: return await get_json("/api/stock/GetStock")
-async def fetch_weather() -> Dict[str, Any]: return await get_json(WEATHER_PATH)
+afetch_stock   = lambda: _get_json("/api/stock/GetStock")
+fetch_weather  = lambda: _get_json(WEATHER_PATH)
+_fetch_timers  = lambda: _get_json("/api/stock/restock-time")
 
-# ─── DETEKSI RESTOCK ──────────────────────────────────────────────────────────
-def has_restocked(current: Dict[str, int] | None) -> bool:
+# ── Restock / Event detection ───────────────────────────────────────────────
+def _restocked(cur: Dict[str, int] | None) -> bool:
     global _last_timers
+    if cur is None:
+        return False
     if _last_timers is None:
-        _last_timers = current or {}
+        _last_timers = cur
         return False
-    if not current:
-        return False
-    for k, v in current.items():
-        if v > _last_timers.get(k, 0):
-            _last_timers = current
-            return True
-    _last_timers = current
-    return False
+    changed = any(v > _last_timers.get(k, 0) for k, v in cur.items())
+    _last_timers = cur
+    return changed
 
-# ─── DETEKSI EVENT BARU ───────────────────────────────────────────────────────
-def active_events_list(evt_json: Dict[str, Any]) -> List[Dict[str, Any]]:
-    return [e for e in evt_json.get("events", []) if e.get("isActive")]
+def _active_events(events_json: Dict[str, Any]) -> List[Dict[str, Any]]:
+    return [e for e in events_json.get("events", []) if e.get("isActive")]
 
-def events_changed(current_active: List[Dict[str, Any]]) -> bool:
+def _events_changed(current: List[Dict[str, Any]]) -> bool:
     global _last_active_events
-    names_now = [e["name"] for e in current_active]
-    if names_now != _last_active_events:
-        _last_active_events = names_now
+    names = [e["name"] for e in current]
+    if names != _last_active_events:
+        _last_active_events = names
         return True
     return False
 
-# ─── EMBED BUILDERS ───────────────────────────────────────────────────────────
-def build_stock_embed(data: Dict[str, Any], restock: Dict[str, Any]) -> discord.Embed:
-    now = datetime.now(timezone(timedelta(hours=7))).strftime("%H:%M")
-    embed = discord.Embed(title=f"Grow a Garden Stock – {now}", colour=0x4caf50)
-    embed.set_footer(text="WRAITH • otomatis setiap restock")
+# ── Embed builders ──────────────────────────────────────────────────────────
+def _stock_embed(data: Dict[str, Any], restock: Dict[str, Any]) -> discord.Embed:
+    wib_now = datetime.now(timezone(timedelta(hours=7))).strftime("%H:%M")
+    em = discord.Embed(title=f"Grow a Garden Stock – {wib_now}", colour=0x4caf50)
+    em.set_footer(text="WRAITH • otomatis setiap restock")
     for key in CATEGORIES_ORDER:
         items: List[Dict[str, Any]] = data.get(key, [])
-        if not items: continue
-        lines = []
-        for item in items:
-            name  = item.get("name", "?")
-            qty   = item.get("value", "?")
-            emoji = item.get("emoji") or EMOJI_MAP.get(name, "")
-            lines.append(f"{emoji} `{qty:>3}×` {name}")
+        if not items:
+            continue
         label = CATEGORY_ICON[key]
-        if restock:
-            rest_key  = key.lower().replace("stock", "")
-            countdown = restock.get(rest_key, {}).get("countdown")
-            if countdown: label += f" ({countdown})"
-        embed.add_field(name=label, value="\n".join(lines[:25]), inline=False)
-    return embed
+        cd = restock.get(key.lower().replace("stock", ""), {}).get("countdown")
+        if cd:
+            label += f" ({cd})"
+        lines = [f"{item.get('emoji') or EMOJI_MAP.get(item.get('name',''), '')} `{'{:>3}'.format(item.get('value','?'))}×` {item.get('name','?')}" for item in items]
+        em.add_field(name=label, value="\n".join(lines[:25]), inline=False)
+    return em
 
-def build_weather_embed(active: List[Dict[str, Any]]) -> discord.Embed:
-    now = datetime.now(timezone(timedelta(hours=7))).strftime("%H:%M")
-    embed = discord.Embed(title=f"🌤️ Event Aktif – {now}", colour=0xffc107)
+def _weather_embed(active: List[Dict[str, Any]]) -> discord.Embed:
+    wib_now = datetime.now(timezone(timedelta(hours=7))).strftime("%H:%M")
+    em = discord.Embed(title=f"🌤️ Event Aktif – {wib_now}", colour=0xffc107)
     if not active:
-        embed.description = "_Tidak ada event/cuaca aktif saat ini._"
-        return embed
-    lines = []
-    for ev in active:
-        emoji = ev.get("emoji") or EVENT_EMOJI.get(ev["name"], "")
-        rem   = ev.get("timeRemaining") or "?"
-        lines.append(f"{emoji} **{ev['displayName']}** – `{rem}`")
-    embed.description = "\n".join(lines)
-    return embed
+        em.description = "_Tidak ada event/cuaca aktif saat ini._"
+        return em
+    lines = [f"{ev.get('emoji') or EVENT_EMOJI.get(ev['name'],'')} **{ev['displayName']}** – `{ev.get('timeRemaining','?')}`" for ev in active]
+    em.description = "\n".join(lines)
+    return em
 
-# ─── TASK LOOP POLLING ────────────────────────────────────────────────────────
+# ── Polling loop ────────────────────────────────────────────────────────────
 @tasks.loop(seconds=CHECK_EVERY)
-async def poll_stock():
+async def poll_api():
     try:
-        data   = await fetch_stock()
-        rest   = await get_json("/api/stock/restock-time")
-        events = await fetch_weather()
+        stock   = await afetch_stock()
+        timers  = await _fetch_timers()
+        weather = await fetch_weather()
     except Exception as e:
         logging.error(f"Fetch error: {e}")
         return
 
-    # ── KIRIM EMBED STOCK JIKA RESTOCK ────────────────────────────────────────
-    if has_restocked(data.get("restockTimers")):
-        ch = bot.get_channel(CHANNEL_ID)
-        if ch:
-            await ch.send(embed=build_stock_embed(data, rest))
-            logging.info("Embed stock dikirim (restock)")
+    ch = bot.get_channel(CHANNEL_ID)
+    if ch is None:
+        logging.warning("Channel ID salah atau bot tak ada akses.")
+        return
 
-    # ── KIRIM EMBED EVENT JIKA ADA PERUBAHAN ──────────────────────────────────
-    active_now = active_events_list(events)
-    if events_changed(active_now) and active_now:
-        ch = bot.get_channel(CHANNEL_ID)
-        if ch:
-            await ch.send(embed=build_weather_embed(active_now))
-            logging.info("Embed weather dikirim (event aktif)")
+    if _restocked(stock.get("restockTimers")):
+        await ch.send(embed=_stock_embed(stock, timers))
+        logging.info("Embed stock dikirim (restock)")
 
-# ─── SLASH COMMANDS ───────────────────────────────────────────────────────────
-@bot.command()
-async def sync(ctx):
-    guild = discord.Object(id=GUILD_ID)  # GUILD_ID langsung
-    synced = await bot.tree.sync(guild=guild)
-    await ctx.send(f"✅ Synced {len(synced)} command(s): {[cmd.name for cmd in synced]}")
+    active_now = _active_events(weather)
+    if _events_changed(active_now) and active_now:
+        await ch.send(embed=_weather_embed(active_now))
+        logging.info("Embed weather dikirim (event aktif)")
 
-@bot.command()
-async def syncglobal(ctx):
-    synced = await bot.tree.sync()
-    await ctx.send(f"Synced {len(synced)} global command(s).")
-
-# @bot.command(name="weather", help="Tampilkan event/cuaca aktif saat ini")
-# async def weather(ctx: commands.Context):
-#     try:
-#         events  = await fetch_weather()
-#         active  = active_events_list(events)
-#         embed   = build_weather_embed(active)
-#         await ctx.send(embed=embed)
-#     except Exception as e:
-#         logging.error(e)
-#         await ctx.send("Gagal fetch weather.")
-        
-@bot.tree.command(name="sync", description="Paksa sync command guild")
-async def sync_cmd(interaction: discord.Interaction):
-    synced = await bot.tree.sync(guild=interaction.guild)
-    await interaction.response.send_message(f"Synced {len(synced)} command(s).", ephemeral=True)
-
-
-@bot.tree.command(name="stock", description="Tampilkan stok Grow a Garden saat ini")
-async def cmd_stock(interaction: discord.Interaction):
-    await interaction.response.defer()
+# ── Slash commands (global) ─────────────────────────────────────────────────
+@bot.tree.command(name="stock", description="Tampilkan stok Grow a Garden")
+async def stock_slash(inter: discord.Interaction):
+    await inter.response.defer()
     try:
-        data   = await fetch_stock()
-        rest   = await get_json("/api/stock/restock-time")
-        embed  = build_stock_embed(data, rest)
-        await interaction.followup.send(embed=embed)
+        stock  = await afetch_stock()
+        timers = await _fetch_timers()
+        await inter.followup.send(embed=_stock_embed(stock, timers))
     except Exception as e:
         logging.error(e)
-        await interaction.followup.send("Gagal fetch stock.")
+        await inter.followup.send("Gagal fetch stock.")
 
 @bot.tree.command(name="weather", description="Tampilkan event/cuaca aktif saat ini")
-async def cmd_weather(interaction: discord.Interaction):
-    await interaction.response.defer()
+async def weather_slash(inter: discord.Interaction):
+    await inter.response.defer()
     try:
-        events = await fetch_weather()
-        active = active_events_list(events)
-        embed  = build_weather_embed(active)
-        await interaction.followup.send(embed=embed)
+        weather = await fetch_weather()
+        active  = _active_events(weather)
+        await inter.followup.send(embed=_weather_embed(active))
     except Exception as e:
         logging.error(e)
-        await interaction.followup.send("Gagal fetch weather.")
+        await inter.followup.send("Gagal fetch weather.")
 
-# ─── READY ────────────────────────────────────────────────────────────────────
+@bot.command()
+async def sync(ctx: commands.Context):
+    synced = await bot.tree.sync()
+    await ctx.send(f"✅ Synced {len(synced)} global command(s): {[c.name for c in synced]}")
+
+# ── Event on_ready ──────────────────────────────────────────────────────────
 @bot.event
 async def on_ready():
-    await bot.wait_until_ready()
     try:
-        guild = discord.Object(id=GUILD_ID)
-        synced = await bot.tree.sync(guild=guild)
-        logging.info(f"✅ Synced {len(synced)} command(s): {[cmd.name for cmd in synced]}")
+        synced = await bot.tree.sync()
+        logging.info(f"✅ Synced {len(synced)} global command(s): {[c.name for c in synced]}")
     except Exception as e:
         logging.error(f"❌ Gagal sync slash command: {e}")
-    logging.info(f"Bot online sebagai {bot.user} (ID {bot.user.id})")
 
-# ─── MAIN ──────────────────────────────────────────────────────────────────────
+    logging.info(f"Bot online sebagai {bot.user} (ID {bot.user.id})")
+    if not poll_api.is_running():
+        poll_api.start()
+
+# ── Main ─────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     if not TOKEN or CHANNEL_ID == 0:
-        raise SystemExit("Isi env TOKEN & CHANNEL_ID dulu.")
-    
+        raise SystemExit("Isi TOKEN dan CHANNEL_ID dulu.")
+
     print("🔍 Slash Commands Terdaftar:")
     for cmd in bot.tree.get_commands():
         print(f" - /{cmd.name}")
 
-    
     logging.info("Bot starting...")
     bot.run(TOKEN)
