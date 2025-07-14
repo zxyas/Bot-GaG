@@ -18,6 +18,7 @@ logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format="[%(asctime)s] %(levelname)s: %(message)s")
 
 INTENTS = discord.Intents.default()
+INTENTS.message_content = True
 bot = commands.Bot(command_prefix="!", intents=INTENTS)
 
 # ─── CACHE ────────────────────────────────────────────────────────────────────
