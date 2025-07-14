@@ -211,9 +211,6 @@ async def on_ready():
         synced = await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
         logging.info(f"✅ Synced {len(synced)} command(s): {[cmd.name for cmd in synced]}")
         
-        for cmd in bot.tree.get_commands(guild=discord.Object(id=GUILD_ID)):
-            logging.info(f"Slash command tersedia: /{cmd.name}")
-            
     except Exception as e:
         logging.error(f"❌ Gagal sync slash command: {e}")
     
@@ -226,5 +223,11 @@ async def on_ready():
 if __name__ == "__main__":
     if not TOKEN or CHANNEL_ID == 0:
         raise SystemExit("Isi env TOKEN & CHANNEL_ID dulu.")
-    bot.run(TOKEN)
+    
+    print("🔍 Slash Commands Terdaftar:")
+    for cmd in bot.tree.get_commands():
+        print(f" - /{cmd.name}")
+
+    
     logging.info("Bot starting...")
+    bot.run(TOKEN)
