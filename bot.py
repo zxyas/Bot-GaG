@@ -34,6 +34,9 @@ _last_timers: Dict[str, int] | None = None   # cache restock timer
 _last_active_events: List[str] = []          # cache event aktif
 
 # ── Pemetaan ikon & emoji ───────────────────────────────────────────────────
+WATCHED_ITEMS = ["Sugar Apple", "Carrot"]
+WATCHED_PING   = "@everyone"  # bisa ganti jadi user ID atau @everyone/@here
+
 CATEGORY_ICON = {
     "seedsStock":  "Seeds",
     "gearStock":   "Gear",
@@ -146,7 +149,7 @@ def _weather_embed(active: List[Dict[str, Any]]) -> discord.Embed:
         return em
     lines = [f"{ev.get('emoji') or EVENT_EMOJI.get(ev['name'],'')} **{ev['displayName']}** – `{ev.get('timeRemaining','?')}`" for ev in active]
     em.description = "\n".join(lines)
-    em.set_footer(text="WRAITH • Cuaca Aktif")
+    em.set_footer(text="WRAITH • Cuaca")
     em.timestamp = datetime.now(timezone.utc)
     return em
 
@@ -169,6 +172,19 @@ async def poll_api():
     if _restocked(stock.get("restockTimers")):
         await ch.send(embed=_stock_embed(stock, timers))
         logging.info("Embed stock dikirim (restock)")
+        
+        # Ping jika ada item yang dipantau
+        found = []
+        for items in stock.values():
+            if isinstance(items, list):
+                for item in items:
+                    name = item.get("name", "")
+                    if name in WATCHED_ITEMS:
+                        found.append(name)
+
+        if found:
+            await ch.send(f"{WATCHED_PING} ‼️ Item muncul: {', '.join(found)}")
+            logging.info(f"Ping dikirim untuk: {found}")
 
     active_now = _active_events(weather)
     if _events_changed(active_now) and active_now:
