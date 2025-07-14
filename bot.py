@@ -21,6 +21,7 @@ INTENTS = discord.Intents.default()
 INTENTS.message_content = True
 bot = commands.Bot(command_prefix="!", intents=INTENTS)
 
+
 # ─── CACHE ────────────────────────────────────────────────────────────────────
 _last_timers: Dict[str, int] | None = None   # untuk restock
 _last_active_events: List[str]      = []     # untuk weather
@@ -201,3 +202,4 @@ if __name__ == "__main__":
     if not TOKEN or CHANNEL_ID == 0:
         raise SystemExit("Isi env TOKEN & CHANNEL_ID dulu.")
     bot.run(TOKEN)
+    logging.info("Bot starting...")
