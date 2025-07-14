@@ -34,7 +34,7 @@ _last_timers: Dict[str, int] | None = None   # cache restock timer
 _last_active_events: List[str] = []          # cache event aktif
 
 # ── Pemetaan ikon & emoji ───────────────────────────────────────────────────
-WATCHED_ITEMS = ["Sugar Apple"]
+WATCHED_ITEMS = ["Sugar Apple", "Carrot"]
 WATCHED_PING   = "@everyone"  # bisa ganti jadi user ID atau @everyone/@here
 
 CATEGORY_ICON = {
@@ -170,10 +170,9 @@ async def poll_api():
         return
 
     if _restocked(stock.get("restockTimers")):
-        await ch.send(embed=_stock_embed(stock, timers))
-        logging.info("Embed stock dikirim (restock)")
-        
-        # Ping jika ada item yang dipantau
+        embed = _stock_embed(stock, timers)
+
+        # Cek apakah ada item penting
         found = []
         for items in stock.values():
             if isinstance(items, list):
@@ -182,9 +181,13 @@ async def poll_api():
                     if name in WATCHED_ITEMS:
                         found.append(name)
 
+        content = None
         if found:
-            await ch.send(f"{WATCHED_PING} ‼️ Item muncul: {', '.join(found)}")
-            logging.info(f"Ping dikirim untuk: {found}")
+            content = f"{WATCHED_PING} ‼️ Item muncul: {', '.join(found)}"
+
+        await ch.send(content=content, embed=embed)
+        logging.info("Embed stock dikirim (restock)")
+        logging.info(f"Ping dikirim untuk: {found}")
 
     active_now = _active_events(weather)
     if _events_changed(active_now) and active_now:
