@@ -58,7 +58,7 @@ EMOJI_MAP = {
     "Cleaning Spray": "<:cleaningSpray:1394288446834737213>",
     "Favorite Tool": "<:favTool:1394289270369419475>",
     "Harvest Tool": "<:harvestTool:1394289905131061322>",
-    "Watermellon": "<:watermellonGag:1394293019418558575>",
+    "Watermelon": "<:watermelonGag:1394293019418558575>",
     "Pumpkin": "<:pumpkinGag:1394291620853186581>",
     "Orange Tulip": "<:orangeTulipGag:1394291333941694496>",
     "Bamboo": "<:bambooGag:1394287325357539338>",
