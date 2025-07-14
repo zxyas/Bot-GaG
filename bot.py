@@ -55,6 +55,17 @@ EMOJI_MAP = {
     "Cleaning Spray": "<:cleaningSpray:1394288446834737213>",
     "Favorite Tool": "<:favTool:1394289270369419475>",
     "Harvest Tool": "<:harvestTool:1394289905131061322>",
+    "Watermellon": "<:watermellonGag:1394293019418558575>",
+    "Pumpkin": "<:pumpkinGag:1394291620853186581>",
+    "Orange Tulip": "<:orangeTulipGag:1394291333941694496>",
+    "Bamboo": "<:bambooGag:1394287325357539338>",
+    "Apple": "<:appleGag:1394287325357539338>",
+    
+    "Basic Sprinkle": "<:basicSprink:1394287072528826479>",
+    "Advanced Sprinkle": "<:advSprink:1394286854538526893>",
+    "Godly Sprinkle": "<:godlySprink:1394289629682995261>",
+    "Master Sprinkle": "<:masterSprink:1394290802074718311>",
+    
     "Common Egg": "<:commonEgg:1394288712313213039>",
     "Common Summer Egg": "<:commonSummerEgg:1394288818953256971>"
 }
