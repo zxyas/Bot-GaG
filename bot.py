@@ -160,6 +160,17 @@ async def sync(ctx):
     synced = await bot.tree.sync(guild=discord.Object(id=ctx.guild.id))
     await ctx.send(f"Synced {len(synced)} command(s).")
 
+@bot.command(name="weather", help="Tampilkan event/cuaca aktif saat ini")
+async def weather(ctx: commands.Context):
+    try:
+        events  = await fetch_weather()
+        active  = active_events_list(events)
+        embed   = build_weather_embed(active)
+        await ctx.send(embed=embed)
+    except Exception as e:
+        logging.error(e)
+        await ctx.send("Gagal fetch weather.")
+        
 @bot.tree.command(name="sync", description="Paksa sync command guild")
 async def sync_cmd(interaction: discord.Interaction):
     synced = await bot.tree.sync(guild=interaction.guild)
