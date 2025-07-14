@@ -131,24 +131,24 @@ async def on_ready():
 @tasks.loop(seconds=CHECK_EVERY)
 async def poll_stock():
     try:
-    data = await fetch_stock()
-    async with aiohttp.ClientSession() as session:
-        async with session.get(f"{API_BASE.rstrip('/')}/api/stock/restock-time") as r:
-            restock_times = await r.json()
-except Exception as e:
-    logging.error(f"Fetch error: {e}")
-    return
-
-if not has_restocked(data.get("restockTimers")):
-    return
-
-channel = bot.get_channel(CHANNEL_ID)
-if not channel:
-    logging.warning("CHANNEL_ID salah atau bot tak punya akses.")
-    return
-
-await channel.send(content="@everyone", embed=build_embed(data, restock_times))
-logging.info("Embed restock dikirim → Discord")
+        data = await fetch_stock()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{API_BASE.rstrip('/')}/api/stock/restock-time") as r:
+                restock_times = await r.json()
+    except Exception as e:
+        logging.error(f"Fetch error: {e}")
+        return
+    
+    if not has_restocked(data.get("restockTimers")):
+        return
+    
+    channel = bot.get_channel(CHANNEL_ID)
+    if not channel:
+        logging.warning("CHANNEL_ID salah atau bot tak punya akses.")
+        return
+    
+    await channel.send(content="@everyone", embed=build_embed(data, restock_times))
+    logging.info("Embed restock dikirim → Discord")
 
 
 
