@@ -187,7 +187,7 @@ async def poll_api():
 
         content = None
         if found:
-            content = f"{WATCHED_PING} ‼️ Item muncul: {', '.join(found)}"
+            content = f"‼️ Item muncul: {', '.join(found)}\n{WATCHED_PING} "
 
         await ch.send(content=content, embed=embed)
         logging.info("Embed stock dikirim (restock)")
