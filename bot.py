@@ -34,7 +34,7 @@ _last_timers: Dict[str, int] | None = None   # cache restock timer
 _last_active_events: List[str] = []          # cache event aktif
 
 # ── Pemetaan ikon & emoji ───────────────────────────────────────────────────
-WATCHED_ITEMS = ["Sugar Apple", "Carrot"]
+WATCHED_ITEMS = ["Sugar Apple"]
 WATCHED_PING   = "@everyone"  # bisa ganti jadi user ID atau @everyone/@here
 
 CATEGORY_ICON = {
@@ -64,6 +64,7 @@ EMOJI_MAP = {
     "Bamboo": "<:bambooGag:1394287325357539338>",
     "Apple": "<:appleGag:1394287325357539338>",
     "Daffodil": "<:daffodilGag:1394288916445659227>",
+    "Corn": ":Corn:",
     
     "Basic Sprinkler": "<:basicSprink:1394287072528826479>",
     "Advanced Sprinkler": "<:advSprink:1394286854538526893>",
