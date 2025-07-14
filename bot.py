@@ -193,9 +193,18 @@ async def cmd_weather(interaction: discord.Interaction):
 # ─── READY ────────────────────────────────────────────────────────────────────
 @bot.event
 async def on_ready():
-    await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
+    await bot.wait_until_ready()  # ⬅️ tambahkan ini agar sync tidak terlalu cepat
+
+    try:
+        synced = await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
+        logging.info(f"✅ Synced {len(synced)} command(s).")
+    except Exception as e:
+        logging.error(f"❌ Gagal sync slash command: {e}")
+    
     logging.info(f"Bot online sebagai {bot.user} (ID {bot.user.id})")
-    poll_stock.start()
+    
+    if not poll_stock.is_running():
+        poll_stock.start()
 
 # ─── MAIN ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
