@@ -159,6 +159,11 @@ async def sync(ctx):
     synced = await bot.tree.sync(guild=discord.Object(id=ctx.guild.id))
     await ctx.send(f"Synced {len(synced)} command(s).")
 
+@bot.tree.command(name="sync", description="Paksa sync command guild")
+async def sync_cmd(interaction: discord.Interaction):
+    synced = await bot.tree.sync(guild=interaction.guild)
+    await interaction.response.send_message(f"✅ Synced {len(synced)} command(s).", ephemeral=True)
+
 
 @bot.tree.command(name="stock", description="Tampilkan stok Grow a Garden saat ini")
 async def cmd_stock(interaction: discord.Interaction):
