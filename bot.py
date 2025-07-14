@@ -35,9 +35,9 @@ _last_active_events: List[str] = []          # cache event aktif
 
 # ── Pemetaan ikon & emoji ───────────────────────────────────────────────────
 CATEGORY_ICON = {
-    "seedsStock":  "🌱 Seeds",
-    "gearStock":   "🛠️ Gear",
-    "eggStock":    "🥚 Eggs",
+    "seedsStock":  "Seeds",
+    "gearStock":   "Gear",
+    "eggStock":    "Eggs",
     "honeyStock":  "🍯 Honey",
     "nightStock":  "🌙 Night",
     "easterStock": "🐇 Easter",
@@ -45,10 +45,10 @@ CATEGORY_ICON = {
 CATEGORIES_ORDER = list(CATEGORY_ICON.keys())
 
 EMOJI_MAP = {
-    "Carrot": "🥕", "Strawberry": "🍓", "Tomato": "🍅", "Blueberry": "🫐",
-    "Watering Can": "🚿", "Trowel": "🛠️", "Recall Wrench": "🔧",
-    "Cleaning Spray": "🧴", "Favorite Tool": "❤️", "Harvest Tool": "🚜",
-    "Shovel": "⛏️", "Common Egg": "🥚",
+    "Carrot": ":carrot:", "Strawberry": ":strawberry:", "Tomato": ":tomato:", "Blueberry": ":blueberry",
+    "Watering Can": ":wateringCan", "Trowel": ":trowel", "Recall Wrench": ":recallWrench",
+    "Cleaning Spray": ":cleaningSpray", "Favorite Tool": "favTool", "Harvest Tool": ":harvestTool",
+    "Common Egg": ":commonEgg",
 }
 
 EVENT_EMOJI = {
