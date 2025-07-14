@@ -117,7 +117,7 @@ def _stock_embed(data: Dict[str, Any], restock: Dict[str, Any]) -> discord.Embed
         label = CATEGORY_ICON[key]
         cd = restock.get(key.lower().replace("stock", ""), {}).get("countdown")
         if cd:
-            label += f" ({cd})"
+            label += f" ({cd})\n"
         lines = [
             f"{item.get('emoji') or EMOJI_MAP.get(item.get('name', ''), '')} {item.get('name', '?')}: **x{item.get('value', '?')}**"
             for item in items
