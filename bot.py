@@ -33,7 +33,7 @@ _last_timers: Dict[str, int] | None = None   # cache restock timer
 _last_active_events: List[str] = []          # cache event aktif
 
 # ── Pemetaan ikon & emoji ───────────────────────────────────────────────────
-WATCHED_ITEMS = ["Sugar Apple", "Master Sprinkler", "Beanstalk", "Ember Lily", "Bug Egg"]
+WATCHED_ITEMS = ["Sugar Apple", "Master Sprinkler", "Beanstalk", "Ember Lily", "Bug Egg", "Burning Bud"]
 WATCHED_PING   = "@everyone"  # bisa ganti jadi user ID atau @everyone/@here
 
 CATEGORY_ICON = {
@@ -61,11 +61,18 @@ EMOJI_MAP = {
     "Pumpkin": "<:pumpkinGag:1394291620853186581>",
     "Orange Tulip": "<:orangeTulipGag:1394291333941694496>",
     "Bamboo": "<:bambooGag:1394287325357539338>",
-    "Apple": "<:appleGag:1394287325357539338>",
+    "Apple": "<:appleGag:1394287256193335338>",
     "Daffodil": "<:daffodilGag:1394288916445659227>",
     "Beanstalk": "<:beanstalk:1394287572448182283>",
     "Cactus": "<:cactusGag:1394288223412551871>",
     "Mango": "<:mangoGag:1394290537564999690>",
+    "Coconut": "<:coconutGag:1394288543286820888>",
+    "Mushroom": "<:mushroomGag:1394290913135558791>",
+    "Pepper": "<:pepperGag:1395197020528050247>",
+    "Burning Bud": "<:burningBudGag:1395197720007934054>",
+    "Grape": "<:grapeGag:1394289720699392050>",
+    "Ember Lily": "<:emberLilyGag:1394289191440875611>",
+    "Dragon Fruit": "<:dragonFruit:1394289059592933376>",
     "Corn": ":corn:",
     
     "Basic Sprinkler": "<:basicSprink:1394287072528826479>",
@@ -74,11 +81,17 @@ EMOJI_MAP = {
     "Master Sprinkler": "<:masterSprink:1394290802074718311>",
     "Magnifying Glass": "<:magnifyingGlass:1394290418434310266>",
     "Medium Treat": ":bone:",
+    "Medium Toy": ":teddy_bear:",
+    "Friendship Pot": "<:friendshipPot:1394289541770379346>",
+    "Tanning Mirror": "<:tanningMirror:1394292515758280765>",
+    "Levelup Lollipop": ":lollipop:",
     
     "Common Egg": "<:commonEgg:1394288712313213039>",
     "Common Summer Egg": "<:commonSummerEgg:1394288818953256971>",
     "Rare Summer Egg": "<:rareSummerEgg:1394291755939008522>",
-    "Paradise Egg": "<:paradiseEgg:1394291488019583048>"
+    "Paradise Egg": "<:paradiseEgg:1394291488019583048>",
+    "Bug Egg": "<:bugEgg:1394288000350814279>",
+    "Mythical Egg": "<:mythicalEgg:1394291158712320082>"
 }
 
 EVENT_EMOJI = {
